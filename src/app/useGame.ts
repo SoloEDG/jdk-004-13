@@ -1,11 +1,13 @@
 import { useEffect, useRef, useState } from "react";
 import { createRun } from "../shared/createRun";
-import type { Input } from "../shared/types";
+import type { Input, WaveConfigV2 } from "../shared/types";
 import { simulate } from "./simulate";
 import { chooseUpgrade } from "../features/progression";
 import { loadRecords, saveRecords } from "../features/results";
+import { loadConfig } from "../features/waves";
 export function useGame() {
-  const game = useRef(createRun(204004, loadRecords()));
+  const config = useRef<WaveConfigV2>(loadConfig());
+  const game = useRef(createRun(204004, loadRecords(), config.current));
   const input = useRef<Input>({
     x: 0,
     y: 0,
@@ -82,6 +84,7 @@ export function useGame() {
   }, []);
   return {
     game,
+    config,
     input,
     start: () => {
       game.current.phase = "playing";
@@ -92,9 +95,21 @@ export function useGame() {
       else if (d.phase === "paused") d.phase = "playing";
     },
     choose: (id: string) => chooseUpgrade(game.current, id),
+    // 仅开局前（ready）允许调整编队：用新配置重建本局与出生队列。
+    applyConfig: (next: WaveConfigV2) => {
+      const d = game.current;
+      if (d.phase !== "ready") return;
+      config.current = next;
+      game.current = createRun(d.initialSeed, d.records, next);
+    },
     restart: () => {
       saveRecords(game.current.records);
-      game.current = createRun(204004, game.current.records);
+      // 全新一局：队列按配置重建，绝不沿用上一局未完成的出生任务。
+      game.current = createRun(
+        game.current.initialSeed,
+        game.current.records,
+        config.current,
+      );
       keys.current.clear();
       game.current.phase = "playing";
     },

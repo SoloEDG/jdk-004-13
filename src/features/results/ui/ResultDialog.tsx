@@ -29,6 +29,10 @@ export function ResultDialog({
             <small>最终等级</small>
           </div>
         </div>
+        <div className="result-config mono">
+          <span>配置版本 v{doc.config.version}</span>
+          <span>编队 {doc.config.configId}</span>
+        </div>
         <div className="damage-breakdown">
           {Object.entries(doc.stats.byWeapon).map(([key, value]) => (
             <div key={key}>

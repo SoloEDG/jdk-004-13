@@ -118,6 +118,13 @@ export function renderScene(ctx: CanvasRenderingContext2D, d: GameDoc) {
   ctx.fillText("SECTOR 07 / SIGNAL ACTIVE", 48, HEIGHT - 42);
   ctx.fillText(
     `${d.enemies.length.toString().padStart(3, "0")} HOSTILES`,
+    WIDTH - 268,
+    HEIGHT - 42,
+  );
+  // 与波次面板同步：场上敌人来自已进入的出生任务，剩余任务仍在队列。
+  ctx.fillStyle = "#6f8493";
+  ctx.fillText(
+    `ENTERED ${d.enemies.length} · QUEUE ${d.spawnQueue.length}`,
     WIDTH - 145,
     HEIGHT - 42,
   );

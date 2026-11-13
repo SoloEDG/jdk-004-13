@@ -1,5 +1,13 @@
-import type { GameDoc, RunRecord } from "./types";
-export function createRun(seed = 204004, records: RunRecord[] = []): GameDoc {
+import type { GameDoc, RunRecord, WaveConfigV2 } from "./types";
+import { buildDefaultConfig } from "../features/waves/model/catalog";
+import { buildSpawnQueue } from "../features/waves/model/schedule";
+import { emptyPlan } from "../features/waves/model/formation";
+
+export function createRun(
+  seed = 204004,
+  records: RunRecord[] = [],
+  config: WaveConfigV2 = buildDefaultConfig(),
+): GameDoc {
   return {
     version: 1,
     seed,
@@ -27,7 +35,10 @@ export function createRun(seed = 204004, records: RunRecord[] = []): GameDoc {
     pendingLevels: 0,
     wave: 0,
     waveTime: 0,
-    spawnBudget: 0,
+    // 每局按当前配置重建队列，连续重开不会沿用上一局未完成的出生任务。
+    config,
+    spawnQueue: buildSpawnQueue(config),
+    entered: config.waves.map(() => emptyPlan()),
     stats: {
       kills: 0,
       damage: 0,

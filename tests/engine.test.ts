@@ -75,10 +75,12 @@ test("large experience pickup queues every level and choices consume one at a ti
   while (d.pendingLevels) chooseUpgrade(d, d.choices[0]);
   assert.equal(d.phase, "playing");
 });
-test("eight elapsed waves signal victory", () => {
+test("eight elapsed waves with an empty queue signal victory", () => {
   const d = createRun();
+  d.phase = "playing";
   d.wave = 8;
   d.waveTime = 29.99;
+  d.spawnQueue = [];
   stepWaves(d, 0.02);
   assert.equal(d.victory, true);
 });

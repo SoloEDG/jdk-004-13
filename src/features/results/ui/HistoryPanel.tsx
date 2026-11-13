@@ -27,6 +27,11 @@ export function HistoryPanel({
                 <span>{formatTime(r.duration)}</span>
                 <span>波次 {r.wave}</span>
                 <span>{r.kills} 击杀</span>
+                <span className="mono muted">
+                  {typeof r.threat === "number"
+                    ? `v${r.configVersion ?? 1} · 威胁 ${r.threat}`
+                    : "v1 固定节奏"}
+                </span>
               </div>
             ))
         )}

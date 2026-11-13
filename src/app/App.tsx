@@ -8,22 +8,25 @@ import {
   RotateCcw,
   Radio,
   History,
+  SlidersHorizontal,
   Volume2,
   VolumeX,
 } from "lucide-react";
 import { useGame } from "./useGame";
 import { Battlefield, Vitals } from "../features/combat";
-import { WavePanel } from "../features/waves";
+import { WavePanel, FormationEditor, saveConfig } from "../features/waves";
 import { ArsenalPanel } from "../features/arsenal";
 import { UpgradeDialog, ExperienceBar } from "../features/progression";
 import { StatsPanel, ResultDialog, HistoryPanel } from "../features/results";
 import { formatTime } from "../shared/math";
 import { useAudio } from "./useAudio";
 export function App() {
-  const { game, input, start, toggle, choose, restart } = useGame();
+  const { game, config, input, start, toggle, choose, restart, applyConfig } =
+    useGame();
   const d = game.current;
   const [history, setHistory] = useState(false);
   const [help, setHelp] = useState(false);
+  const [editor, setEditor] = useState(false);
   const { muted, setMuted } = useAudio(d);
   const openHistory = () => {
     if (d.phase === "playing") d.phase = "paused";
@@ -85,7 +88,7 @@ export function App() {
               </div>
             </div>
             <Vitals doc={d} />
-            <WavePanel doc={d} />
+            <WavePanel doc={d} onEditFormation={() => setEditor(true)} />
             <div className="mission-note">
               <Radio size={18} />
               <span>
@@ -170,6 +173,12 @@ export function App() {
                     <button className="primary" onClick={start}>
                       开始行动 <ArrowUpRight size={17} />
                     </button>
+                    <button
+                      className="outline start-formation"
+                      onClick={() => setEditor(true)}
+                    >
+                      <SlidersHorizontal size={15} /> 编队预算 · 预览与调整
+                    </button>
                     <small>W A S D 移动 · ESC 暂停</small>
                   </div>
                 </div>
@@ -233,6 +242,14 @@ export function App() {
       {history && (
         <HistoryPanel records={d.records} close={() => setHistory(false)} />
       )}{" "}
+      {editor && d.phase === "ready" && (
+        <FormationEditor
+          config={config.current}
+          onApply={applyConfig}
+          onSave={saveConfig}
+          onClose={() => setEditor(false)}
+        />
+      )}
       {help && (
         <div className="overlay help-overlay">
           <div className="history-dialog">
